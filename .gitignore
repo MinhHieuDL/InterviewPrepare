@@ -1,0 +1,2 @@
+# Ignore build-like directories under codePractice
+/codePractice/**/build*/
