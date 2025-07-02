@@ -30,9 +30,10 @@
   <p align="center"><i>Figure 5: Running the build tool</i></p>
   <br>
 
+  - The --build option points to the build directory used by the CMake project generation step
   - For multi configuration generators, the --config option specifies which configuration to build, whereas single configuration generators will ignore the --config option and rely instead on information provided when the CMake project generation step was performed
   - The --target option can be used to tell the build tool what to build, or if omitted, the default target will be built. With CMake 3.15 or later, multiple targets can be listed after the --target option, separated by spaces
 - A simple script for driving all the build process may be useful, it might look something like this:
   ![Basic script build](./images/BasicScriptBuild.png)
-  <p align="center"><i>Figure 6: Basic Scrpt Build</i></p>
+  <p align="center"><i>Figure 6: Basic Script Build</i></p>
   <br>
