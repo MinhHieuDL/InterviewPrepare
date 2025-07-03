@@ -1,2 +1,5 @@
+# VS Code settings
+.vscode/
+
 # Ignore build-like directories under codePractice
 /codePractice/**/build*/
