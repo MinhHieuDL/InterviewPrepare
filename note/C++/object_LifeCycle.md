@@ -29,3 +29,36 @@
    ![virtual destructor using](./images/VirtualDestructorUsing.png)
   <p align="center"><i>Figure 4: virtual destructor using</p></i>
   <br>
+- Class Object Initialization:
+  - Initialization without constructors: we can initialize objects of a class for which we have not definede a constructor using:
+    - memberwise Initialization
+    - copty initialization
+    - default initialization (without an initializer or with an empty initializer list)
+  ![Initialization Without Constructors](./images/InitializationWithoutConstructors.png)
+  <p align="center"><i>Figure 5: Initialization Without Constructors<br></i>
+  </p>
+  <br>
+  
+  - The tree member of **currently_playing** are copies of those **s9**
+  - The default initialization of using **{}** is defined as initialization of each member by **{}**. So, none
+  is initialized to **{{},{},{}}**, which is **{"","",0}**
+  - Where no constructor requiring arguments is declared, it is also possible to leave out the initializer completely
+  (not use **{}** when define a object of class). For statically allocated objects the rules are exactly as when we had used **{}**. 
+  But, for local variables, the default initialization is done only for members of class type, and member of built-in type
+  are left unitializerd. So to guranteed initialization or simply dislike surprises, supply an initializer, such as **{}**
+  - Member initialization: Arguments for a member's constructor are specified in a _member initializer list_ in the definition of the constructor of the containing class
+  ![Member Initialization](./images/ClassMemberInitialization.png)
+  <p align="center"><i>Figure 6: Member Initialization</p></i>
+  <br>
+
+  - Base initializer: Base of a derived class are initialized in the same way non-data members are.
+  That is, if a base requires an initializer, it must be provided as a base initializer in a constructor
+   ![Base Initialize](./images/BaseInitialize.png)
+  <p align="center"><i>Figure 7: Base Initialize</p></i>
+  <br>
+
+  - Some of initialize concepts can be reference when needed: **Delegating Constructors**, **In-Class Initializer**, **static Member Initialization**
+- Copy:
+  - Copy for a class X is defined by two operations:
+    - Copy constructor: **X(const X&)**
+    - Copy assignment: **X& operator=(const X&)**
