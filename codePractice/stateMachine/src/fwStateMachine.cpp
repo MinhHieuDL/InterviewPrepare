@@ -32,8 +32,8 @@ void CStateMachine::LoadStateFromStateID(unsigned char ucState, STATE& refState)
             refState = m_pStateList[i];
             break;
         }
+        cout << "Failed to load the State from state ID" << endl;
     }
-    cout << "Failed to load the State from state ID" << endl;
 }
 
 void CStateMachine::HandleEvt(unsigned char ucEvt) {
@@ -41,26 +41,23 @@ void CStateMachine::HandleEvt(unsigned char ucEvt) {
     unsigned char ucSize = sizeof(pListEvtControl)/sizeof(STATE_EVENT_CONTROL);
     for(unsigned i = 0; i < ucSize; i++)
     {
-        bool b_IsDone{false};
         if(pListEvtControl[i].m_eventID == ucEvt)
         {
             CallMapAction(pListEvtControl[i].m_actionID);
-            b_IsDone = true;
-        }
+            
+            // check if need to switch state
+            if(pListEvtControl[i].m_nextState != m_CurrentState.m_stateID)
+            {
+                // exit current state
+                CallMapAction(m_CurrentState.m_exitActionID);
 
-        // check if need to switch state
-        if(pListEvtControl[i].m_nextState != m_CurrentState.m_stateID)
-        {
-            // exit current state
-            CallMapAction(m_CurrentState.m_exitActionID);
-            
-            // Load new state
-            LoadStateFromStateID(pListEvtControl[i].m_nextState, m_CurrentState);
-            
-            // do enter new state action
-            CallMapAction(m_CurrentState.m_enterActionID);
+                // Load new state
+                LoadStateFromStateID(pListEvtControl[i].m_nextState, m_CurrentState);
+
+                // do enter new state action
+                CallMapAction(m_CurrentState.m_enterActionID);
+            }
+            break;
         }
-        
-        if(b_IsDone) break;
     }
 }

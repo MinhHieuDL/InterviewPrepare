@@ -10,7 +10,8 @@ typedef enum{
 } StateID;    
 
 typedef enum {
-    ACTION_ENTER_INIT = 0,
+    NO_ACTION = 0,
+    ACTION_ENTER_INIT,
     ACTION_EXIT_INIT,
     ACTION_ENTER_RUNNING,
     ACTION_EXIT_RUNNING,
@@ -32,23 +33,23 @@ typedef enum {
 
 // Define event control list for each state
 const STATE_EVENT_CONTROL pEventControlInitList[] = {
-    {EVENT_START, STATE_RUNNING, 0},
+    {EVENT_START, STATE_RUNNING, NO_ACTION},
     {EVENT_ERROR, STATE_ERROR, ACTION_WARNING_ERROR},    
 };  
 
 const STATE_EVENT_CONTROL pEventControlRunningList[] = {
-    {EVENT_STOP, STATE_STOPPED, 0},
+    {EVENT_STOP, STATE_STOPPED, NO_ACTION},
     {EVENT_ERROR, STATE_ERROR, ACTION_WARNING_ERROR},
 };
 
 const STATE_EVENT_CONTROL pEventControlStoppedList[] = {
-    {EVENT_START, STATE_RUNNING, 0},
+    {EVENT_START, STATE_RUNNING, NO_ACTION},
     {EVENT_ERROR, STATE_ERROR, ACTION_WARNING_ERROR},
-    {EVENT_RESET, STATE_INIT, 0}
+    {EVENT_RESET, STATE_INIT, NO_ACTION}
 };
 
 const STATE_EVENT_CONTROL pEventControlErrorList[] = {
-    {EVENT_RESET, STATE_INIT, 0}
+    {EVENT_RESET, STATE_INIT, NO_ACTION}
 };
 
 // Define the states with their respective event control lists 

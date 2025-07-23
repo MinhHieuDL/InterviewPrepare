@@ -55,6 +55,7 @@ void Test::CallMapAction(unsigned char ucActionID){
         case ACTION_EXIT_ERROR: return ExitErrorAction();
         case ACTION_WARNING_ERROR: return WarningErrorAction();
         case ACTION_RESET: return ResetAction();
+        case NO_ACTION: return;
         default : { cout << "not find action" << endl; return;}
     }        
 }
