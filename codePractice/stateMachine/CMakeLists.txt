@@ -3,7 +3,8 @@ project(testStMachine)
 
 add_executable(${PROJECT_NAME}
     src/fwStateMachine.cpp
-    src/main.cpp)
+    src/main.cpp
+    src/test.cpp)
 
 # Set include directories
 target_include_directories(${PROJECT_NAME} PRIVATE
