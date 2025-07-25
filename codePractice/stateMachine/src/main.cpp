@@ -5,7 +5,7 @@ using namespace std;
 
 int main(void){
     CStateMachine* testSM = new Test();
-    testSM->Init((STATE*)pTestStateList, STATE_INIT);
+    testSM->Init(TestStateList, STATE_INIT);
     unsigned char receivedEvt;
     while(true){
         cout << "enter event: ";

@@ -5,7 +5,7 @@ using namespace std;
 
 CStateMachine::CStateMachine(/* args */) : 
     m_CurrentState{0},
-    m_pStateList{nullptr}
+    m_StateList{}
 { };
 
 CStateMachine::~CStateMachine()
@@ -14,9 +14,9 @@ CStateMachine::~CStateMachine()
 }
 
 
-void CStateMachine::Init(STATE* pStateList, unsigned char ucFirstState){
+void CStateMachine::Init(vector<STATE> StateList, unsigned char ucFirstState){
     // load the state list
-    m_pStateList = pStateList;
+    m_StateList = StateList;
     
     //load the first state
     LoadStateFromStateID(ucFirstState, m_CurrentState);
@@ -26,10 +26,9 @@ void CStateMachine::Init(STATE* pStateList, unsigned char ucFirstState){
 }
 
 void CStateMachine::LoadStateFromStateID(unsigned char ucState, STATE& refState){
-    unsigned char ucSize = sizeof(m_pStateList)/sizeof(STATE);
-    for(unsigned i = 0; i < ucSize; i++){
-        if(m_pStateList[i].m_stateID == ucState){
-            refState = m_pStateList[i];
+    for(unsigned i = 0; i < m_StateList.size(); i++){
+        if(m_StateList[i].m_stateID == ucState){
+            refState = m_StateList[i];
             break;
         }
         cout << "Failed to load the State from state ID" << endl;
@@ -37,22 +36,21 @@ void CStateMachine::LoadStateFromStateID(unsigned char ucState, STATE& refState)
 }
 
 void CStateMachine::HandleEvt(unsigned char ucEvt) {
-    STATE_EVENT_CONTROL* pListEvtControl = m_CurrentState.m_pEventControlStateList;
-    unsigned char ucSize = sizeof(pListEvtControl)/sizeof(STATE_EVENT_CONTROL);
-    for(unsigned i = 0; i < ucSize; i++)
+    vector<STATE_EVENT_CONTROL> EvtControlList = m_CurrentState.m_EventControlStateList;
+    for(unsigned i = 0; i < EvtControlList.size(); i++)
     {
-        if(pListEvtControl[i].m_eventID == ucEvt)
+        if(EvtControlList[i].m_eventID == ucEvt)
         {
-            CallMapAction(pListEvtControl[i].m_actionID);
+            CallMapAction(EvtControlList[i].m_actionID);
             
             // check if need to switch state
-            if(pListEvtControl[i].m_nextState != m_CurrentState.m_stateID)
+            if(EvtControlList[i].m_nextState != m_CurrentState.m_stateID)
             {
                 // exit current state
                 CallMapAction(m_CurrentState.m_exitActionID);
 
                 // Load new state
-                LoadStateFromStateID(pListEvtControl[i].m_nextState, m_CurrentState);
+                LoadStateFromStateID(EvtControlList[i].m_nextState, m_CurrentState);
 
                 // do enter new state action
                 CallMapAction(m_CurrentState.m_enterActionID);

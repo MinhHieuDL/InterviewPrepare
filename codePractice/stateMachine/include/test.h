@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include "fwStateMachine.h"
 
 typedef enum{
@@ -32,32 +33,32 @@ typedef enum {
 } EventID;
 
 // Define event control list for each state
-const STATE_EVENT_CONTROL pEventControlInitList[] = {
+const std::vector<STATE_EVENT_CONTROL> EventControlInitList = {
     {EVENT_START, STATE_RUNNING, NO_ACTION},
     {EVENT_ERROR, STATE_ERROR, ACTION_WARNING_ERROR},    
 };  
 
-const STATE_EVENT_CONTROL pEventControlRunningList[] = {
+const std::vector<STATE_EVENT_CONTROL> EventControlRunningList = {
     {EVENT_STOP, STATE_STOPPED, NO_ACTION},
     {EVENT_ERROR, STATE_ERROR, ACTION_WARNING_ERROR},
 };
 
-const STATE_EVENT_CONTROL pEventControlStoppedList[] = {
+const std::vector<STATE_EVENT_CONTROL> EventControlStoppedList = {
     {EVENT_START, STATE_RUNNING, NO_ACTION},
     {EVENT_ERROR, STATE_ERROR, ACTION_WARNING_ERROR},
     {EVENT_RESET, STATE_INIT, NO_ACTION}
 };
 
-const STATE_EVENT_CONTROL pEventControlErrorList[] = {
+const std::vector<STATE_EVENT_CONTROL> EventControlErrorList = {
     {EVENT_RESET, STATE_INIT, NO_ACTION}
 };
 
 // Define the states with their respective event control lists 
-const STATE pTestStateList[] = {
-    {STATE_INIT, ACTION_ENTER_INIT, ACTION_EXIT_INIT, (STATE_EVENT_CONTROL*)pEventControlInitList},
-    {STATE_RUNNING, ACTION_ENTER_RUNNING, ACTION_EXIT_RUNNING, (STATE_EVENT_CONTROL*)pEventControlRunningList},
-    {STATE_STOPPED, ACTION_ENTER_STOPPED, ACTION_EXIT_STOPPED, (STATE_EVENT_CONTROL*)pEventControlStoppedList},
-    {STATE_ERROR, ACTION_ENTER_ERROR, ACTION_EXIT_ERROR, (STATE_EVENT_CONTROL*)pEventControlErrorList}
+const std::vector<STATE> TestStateList = {
+    {STATE_INIT, ACTION_ENTER_INIT, ACTION_EXIT_INIT, EventControlInitList},
+    {STATE_RUNNING, ACTION_ENTER_RUNNING, ACTION_EXIT_RUNNING, EventControlRunningList},
+    {STATE_STOPPED, ACTION_ENTER_STOPPED, ACTION_EXIT_STOPPED, EventControlStoppedList},
+    {STATE_ERROR, ACTION_ENTER_ERROR, ACTION_EXIT_ERROR, EventControlErrorList}
 };
 
 class Test : public CStateMachine {
