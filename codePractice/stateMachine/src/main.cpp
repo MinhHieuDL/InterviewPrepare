@@ -45,7 +45,7 @@ int main(void){
             cout << "Exit app" << endl;
             delete testSM;
         }
-        break;
+        return 0;
         
         default:
             cout << "unknown event" << endl;

@@ -29,10 +29,10 @@ void CStateMachine::LoadStateFromStateID(unsigned char ucState, STATE& refState)
     for(unsigned i = 0; i < m_StateList.size(); i++){
         if(m_StateList[i].m_stateID == ucState){
             refState = m_StateList[i];
-            break;
+            return;
         }
-        cout << "Failed to load the State from state ID" << endl;
     }
+    cout << "Failed to load the State from state ID" << endl;
 }
 
 void CStateMachine::HandleEvt(unsigned char ucEvt) {
