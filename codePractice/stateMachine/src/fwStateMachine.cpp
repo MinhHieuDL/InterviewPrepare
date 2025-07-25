@@ -26,9 +26,9 @@ void CStateMachine::Init(vector<STATE> StateList, unsigned char ucFirstState){
 }
 
 void CStateMachine::LoadStateFromStateID(unsigned char ucState, STATE& refState){
-    for(unsigned i = 0; i < m_StateList.size(); i++){
-        if(m_StateList[i].m_stateID == ucState){
-            refState = m_StateList[i];
+    for(const auto& state : m_StateList){
+        if(state.m_stateID == ucState){
+            refState = state;
             return;
         }
     }
@@ -37,20 +37,20 @@ void CStateMachine::LoadStateFromStateID(unsigned char ucState, STATE& refState)
 
 void CStateMachine::HandleEvt(unsigned char ucEvt) {
     vector<STATE_EVENT_CONTROL> EvtControlList = m_CurrentState.m_EventControlStateList;
-    for(unsigned i = 0; i < EvtControlList.size(); i++)
+    for(const auto& evtControl : EvtControlList)
     {
-        if(EvtControlList[i].m_eventID == ucEvt)
+        if(evtControl.m_eventID == ucEvt)
         {
-            CallMapAction(EvtControlList[i].m_actionID);
+            CallMapAction(evtControl.m_actionID);
             
             // check if need to switch state
-            if(EvtControlList[i].m_nextState != m_CurrentState.m_stateID)
+            if(evtControl.m_nextState != m_CurrentState.m_stateID)
             {
                 // exit current state
                 CallMapAction(m_CurrentState.m_exitActionID);
 
                 // Load new state
-                LoadStateFromStateID(EvtControlList[i].m_nextState, m_CurrentState);
+                LoadStateFromStateID(evtControl.m_nextState, m_CurrentState);
 
                 // do enter new state action
                 CallMapAction(m_CurrentState.m_enterActionID);
