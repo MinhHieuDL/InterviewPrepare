@@ -32,7 +32,7 @@
 - Class Object Initialization:
   - Initialization without constructors: we can initialize objects of a class for which we have not definede a constructor using:
     - memberwise Initialization
-    - copty initialization
+    - copy initialization
     - default initialization (without an initializer or with an empty initializer list)
   ![Initialization Without Constructors](./images/InitializationWithoutConstructors.png)
   <p align="center"><i>Figure 5: Initialization Without Constructors<br></i>

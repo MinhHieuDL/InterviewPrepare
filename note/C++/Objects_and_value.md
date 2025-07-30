@@ -1,4 +1,4 @@
-- An _object_ is a contiguous region of storage; an _lvalue_ is an expression that prefers to an object
+- An _object_ is a contiguous region of storage; an _lvalue_ is an expression that refers to an object
 - The word "lvalue" was originall coined to mean "something that can be on the left-hand side of an assignment"
 - _rvalue_ means "a value that is not an lvalue", such as a temporary value (e.g., the value returned by a function)
 - There are two properties that matter for an object when it comes to addressing, copying, and moving:
