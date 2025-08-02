@@ -43,3 +43,56 @@
     <p align="center"><i>Figure 4: Initialize a const lvalue reference</p></i>
 
   - References can also be used as return types. This is mostly used to define functions that can be used on both the left-hand and right-hand sides of an assignment
+- rvalue references:
+  - An rvalue reference refers to a temporary object, which the user of the reference can (and typically will) modify, assuming that the object will never be used again
+  - We want to know if a reference refers to a temporary, because if it does, we can sometimes turn an expensive copy operation into a cheap move operation
+  - The classic example is a return value where the compiler knows that a local variable returned will never again be used
+  - An rvalue reference can bind to an rvalue, but not to an lvalue. For example:
+    ```cpp
+    string var {"Cambridge"}; 
+    string f(); 
+    
+    string& r1 {var}; // lvalue reference, bind r1 to var (an lvalue) 
+    string& r2 {f()}; // lvalue reference, error : f() is an rvalue 
+    string& r3 {"Princeton"}; // lvalue reference, error: cannot bind to temporary
+    string&& rr1 {f()}; // rvalue reference, fine: bind rr1 to rvalue (a temporary)
+    string&& rr2 {var}; // rvalue reference, error : var is an lvalue
+    string&& rr3 {"Oxford"}; // rr3 refers to a temporary holding "Oxford"
+    
+    const string cr1& {"Harvard"}; // OK: make temporary and bind to cr1
+    ```
+  - The **&&** declarator operator means "rvalue reference"
+  - We do not use const rvalue references; most of the benefits from using rvalue references involve writing to the object to which it refer
+  - Sometimes, a programmer knows that an object won't be used again, even though the compiler does not. Consider:
+  
+    ```cpp
+    template<classT>
+    swap(T& a, T &b) // "old-style swap"
+    {
+      T tmp{a}; // now we have two copies of a
+      a = b;    // now we have two copies of b
+      b = tmp;  // now we have two copies of tmp (aka a)
+    }
+    ```
+  - If **T** is a type for which it can be expensive to copy elements, such as **string** and **vector**, this **swap()** becomes an expensive operation. Note something curious: we didn't want any copies at all; we just wanted to move the values of **a**, **b** and **tmp** around. We can tell that to the compiler:
+    
+    ```cpp
+    template<classT>
+    swap(T& a, T &b) // "perfect swap (almost)"
+    {
+      T tmp{static_cast<T&&>(a)}; // the initialization may write to a
+      a = static_cast<T&&>(b);    // the assignment may write to b
+      b = static_cast<T&&>(tmp);  // the assignment may write to tmp
+    }
+    ```
+  - The result value of s**tatic_cast<T&&>(x)** is an rvalue of type **T&&** for **x**. An operation that is optimized for rvalues can now use its optimization for x. In particular, if a type **T** has a move constructor or a move assignment, it will be used
+  - The use of **static_cast** in **swap()** is a bit verbose and slightly prone to mistyping, so the standard library provides a **move()** function: **move(x)** means **static_cast<X&&>(x)** where **X** is the type of **x**:
+    ```cpp
+    template<classT>
+    swap(T& a, T &b) // "perfect swap (almost)"
+    {
+      T tmp{move(a)}; // move from a
+      a = move(b);    // move from b
+      b = move(tmp);  // move from tmp
+    }
+    ```
