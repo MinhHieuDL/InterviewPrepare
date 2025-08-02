@@ -1,0 +1,20 @@
+- A pointer allow to pass potentially large amounts of data around at low cost: instead of copying the data we simply pass its address as a pointer value
+- The type of the pointer determines what can be done to the data through the pointer
+- Using a pointer differs from using the name of an object in a few ways:
+  - We use a different syntax, for example, ∗p instead of obj and p−>m rather than obj.m
+  - We can make a pointer point to different objects at different times
+  - We must be more careful when using pointers than when using an object directly: a pointer may be a nullptr or point to an object that wasn’t the one we expected
+- These differences can be annoying; for example, some programmers find f(&x) ugly compared to f(x)
+- Worse, managing pointer variables with varying values and protecting code against the possibility of nullptr can be a significant burden
+- Finally, when we want to overload an operator, say +, we want to write x+y rather than &x+&y
+- The language mechanism addressing these problem is called a _reference_
+- Like a pointer, a reference is an alias for an object, is usually implemented to hold a machine address of an object, and does not impose performance overhead compared to pointers, but it differs from a pointer in that:
+  - You access the reference with exactly the same syntax as the name of an object
+  - A reference always refers to the object to which it was initialized
+  - There is no "null reference", and we may assume that a reference refers to an object
+- The main use of references is for specifying arguments and return values for functions in general and for overloaded operators in particular
+- To reflect the lvalue/rvalue and const/non-const distinctions, there are three kinds of references:
+  - _lvalue reference_: to refer to objects whose value we want to change
+  - const reference: to refer to objects whose value we do not want to change (e.g., a constant)
+  - rvalue reference: to refer to objects whose value we do not need to preserve after we have used it (e.g., a temporary)
+- Collectively, they are called _references_. The first two are both called _lvalue references_
