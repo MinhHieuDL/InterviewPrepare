@@ -13,12 +13,14 @@
 
 - A derived class is often said to inherit properties from its base, so the relationship is also called _inheritance_
 - A popular and efficient implementation of the notion of derived classes has an object of the derived class represented as an object of the base class, with the information belonging specifically to the derived class added at the end
+  
   ![Employee Manager implementation](./images/Employee_Manager_Implementation.png)
   <p align="center"<i>Figure 2: Employee Manager implementation </p></i>
   <br>
 
 - A **Manager** is (also) an **Employee**, so a **Manager*** can be used as an **Employee***. However, an **Employee** is not necessarily a **Manager**, so an **Employee** cannot be used as a **Manager***
 - In general, if a class **Derived** has a public base class **Base**, then a **Derived∗** can be assigned to a variable of type **Base∗** without the use of explicit type conversion. The opposite conversion, from **Base∗** to **Derived∗**, must be explicit
+  
   ![Using derived and base class pointer](./images/Base_Derived_pointer.png)
   <p align="center"<i>Figure 3: Using derived and base class pointer </p></i>
   <br>
@@ -47,9 +49,10 @@
        - Follows **vptr** to the **vtable**
        - Looks up the funtion pointer (by index)
        - Calls the correct override (based on the actual class) 
-  ![Graphically represent of vtable and vptr](./images/Vtable_Vptr.png)
-  <p align="center"><i>Figure 4: Graphically represent of vtable and vptr</p></i>
-  <br>
+  
+      ![Graphically represent of vtable and vptr](./images/Vtable_Vptr.png)
+      <p align="center"><i>Figure 4: Graphically represent of vtable and vptr</p></i>
+    
 - Override Control:
   - **virtual**: The function may be overriden
   - **=0**: The function must be virtual and must be overridden
@@ -59,14 +62,14 @@
 - using Base Members:
   - Functions do not overload across scopes, it's mean:
     - When we declare any function in the derived class that has the same name as a function in the base class, the base class function are hidden. This is called name hiding
-    ![Name Hidden](./images/NameHidden.png)
-    <p align="center"><i>Figure 5: Name hidden</p></i>
-    <br>
+    
+      ![Name Hidden](./images/NameHidden.png)
+      <p align="center"><i>Figure 5: Name hidden</p></i>
     
     - To "bring back" the base class function into the derived class scope, we can use a **using** declaration:
-    ![Using base members](./images/usingBaseMembers.png)
-    <p align="center"><i>Figure 6: Using base member</p></i>
-    <br> 
+    
+      ![Using base members](./images/usingBaseMembers.png)
+      <p align="center"><i>Figure 6: Using base member</p></i>
     
     - Now "**d.f(1)**; // call D2::f(int), that is, Base::f(int)"
 - Abstract class:
@@ -74,9 +77,9 @@
   - No objects of abstract class can be created
   - An abstract class is intended as an interface to objecs accessed thorough pointers and references (to preserve polymorphic behavior)
   - An abastract class provides an interface without exposing implementation details. For example, an operating system might hide the details of its device drivers behind an abstract class:
-  ![Abstract class device driver](./images/AbstractClassDeviceDriver.png)
-  <p align="center"><i>Figure 7: Abstract class device driver</p></i>
-  <br> 
+  
+    ![Abstract class device driver](./images/AbstractClassDeviceDriver.png)
+    <p align="center"><i>Figure 7: Abstract class device driver</p></i> 
 
   - We can then specify drivers as classes derived from **Character_device** and manipulate a variety of drivers through that interface
   - The design style supported by abstract classes is called _interface inheritance_ in constrast to the _implementation inheritance_ supported by base classes with state and/or defined member function
@@ -85,19 +88,20 @@
   - If it is **proteced**, its name can be used only by member functions and friends of the class in which it is declared and by member function and friends of classes derived from this class
   - If it is **public**, its name can be used by any function
   - This reflects the view that there are three kinds of functions accessing a class: functions implementing the class (its friends and members), functions implementing a derived class (the derived class's friends and members), and other functions
-  ![Access control](./images/AccessControl.png)
-  <p align="center"><i>Figure 8: Access control</p></i>
-  <br> 
+  
+    ![Access control](./images/AccessControl.png)
+    <p align="center"><i>Figure 8: Access control</p></i> 
 
 - Access to Base Classes: Like a member, a base class can be declared **private**, **protected**, or **public**:
-  ![Access to Base Classes](./images/AccessToBaseClasses.png)
-  <p align="center"><i>Figure 9: Access to Base Classes</p></i>
-  <br> 
+  
+    ![Access to Base Classes](./images/AccessToBaseClasses.png)
+    <p align="center"><i>Figure 9: Access to Base Classes</p></i> 
   
   - When write code: "class Derived : public Base { };" we are not controlling: acess to members inside **Derived** itself (like **public** or **private** in a class body), instead of we are controlling: how the members of **_Base_** are inherited by **Derived** - and what outside code can access them though **Derived** 
-  ![Inheritance mode in C++](./images/InheritanceModeInC++.png)
-  <p align="center"><i>Figure 10: Inheritance mode in C++</p></i>
-  <br>
+  
+    ![Inheritance mode in C++](./images/InheritanceModeInC++.png)
+    <p align="center"><i>Figure 10: Inheritance mode in C++</p></i>
+  
   - Public inheritance = "I am a Base. Treat me like one"
   - Protected inheritance = "I use Base internally, but you can not access it from the outside"
   - Privated Inheritance = "I use Base purely as an implementation detail"

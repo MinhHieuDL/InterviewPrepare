@@ -5,8 +5,9 @@
   - Has identity: The program has the name of, pointer to, or reference to the object so that it is possible to determine if two objects are the same, whether the value of the object has changed, etc
   - Movable: The object may be moved from (i.e., we are allowed to move its value to another location and leave the object in a valid but unspecified state, rather than copying;)
 - Using "m for movable" and "i for has identity", we have the classification of expressions graphically:
-![Classification of expression](./images/lvalue_rvalue.png)
-<p align="center"><i>Figure 1: Classification of expression</p></i> 
+
+  ![Classification of expression](./images/lvalue_rvalue.png)
+  <p align="center"><i>Figure 1: Classification of expression</p></i> 
 
 - A classical lvalue is something that has identity and cannot be moved (because we could examine it after a move)
 - A classical rvalue is anything that we are allowed to move from

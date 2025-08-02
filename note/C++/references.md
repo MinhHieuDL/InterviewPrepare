@@ -20,18 +20,21 @@
 - Collectively, they are called _references_. The first two are both called _lvalue references_
 - lvalue references:
   - In a type name, the notation X& means ‘‘reference to X.’’ It is used for references to lvalues, so it is often called an _lvalue reference_
-  ![lvalue reference](./images/LvalueReference.png)
-  <p align="center"><i>Figure 1: lvalue reference </p></i> 
+  
+    ![lvalue reference](./images/LvalueReference.png)
+    <p align="center"><i>Figure 1: lvalue reference </p></i> 
 
   - To ensure that a reference is a name for something (that is, that it is bound to an object), we must initialize the reference
-  ![lvalue reference initialize](./images/LvalueReferenceInitialize.png)
-  <p align="center"><i>Figure 2: lvalue reference initialize</p></i>
-
+  
+    ![lvalue reference initialize](./images/LvalueReferenceInitialize.png)
+    <p align="center"><i>Figure 2: lvalue reference initialize</p></i>
+    
   - If we have a "int& rr{var};" ++rr does not increment the reference rr; rather, ++ is applied to the int to which rr refers, that is, to var. Consequently, the value of a reference cannot be changed after initialization; it always refers to the object it was initialized to denote. To get a pointer to the object denoted by a reference rr, we can write &rr
   - Thus, we cannot have a pointer to a reference. Furthermore, we cannot define an array of references
   - The obvious implementation of a reference is as a (constant) pointer that is dereferenced each time it is used. It doesn’t do much harm to think about references that way, as long as one remembers that a reference isn’t an object that can be manipulated the way a pointer is
-  ![pointer and reference](./images/PointerVsReference.png)
-  <p align="center"><i>Figure 3: pointer and reference</p></i>
+  
+    ![pointer and reference](./images/PointerVsReference.png)
+    <p align="center"><i>Figure 3: pointer and reference</p></i>
 
   - In some cases, the compiler can optimize away a reference so that there is no object representing that reference at run time
   - Initialization of a reference is trivial when the initializer is an lvalue. The initializer for a ‘‘plain’’ T& must be an lvalue of type T
@@ -39,8 +42,9 @@
     - First, implicit type conversion to T is applied if necessary
     - Then, the resulting value is placed in a temporary variable of type T
     - Finally, this temporary variable is used as the value of the initializer
-    ![Initialize a const lvalue reference](./images/InitialzeConstLvalueReference.png)
-    <p align="center"><i>Figure 4: Initialize a const lvalue reference</p></i>
+    
+      ![Initialize a const lvalue reference](./images/InitialzeConstLvalueReference.png)
+      <p align="center"><i>Figure 4: Initialize a const lvalue reference</p></i>
 
   - References can also be used as return types. This is mostly used to define functions that can be used on both the left-hand and right-hand sides of an assignment
 - rvalue references:
