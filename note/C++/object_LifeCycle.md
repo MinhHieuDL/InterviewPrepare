@@ -61,6 +61,12 @@
     <p align="center"><i>Figure 7: Base Initialize</p></i>
 
   - Some of initialize concepts can be reference when needed: **Delegating Constructors**, **In-Class Initializer**, **static Member Initialization**
+- Copy and Move:
+  - _Copy_ is the conventional meaning of **x=y**; that is, the effect is that the values of **x** and **y** are both equal to **y**'s value before the assignment
+  - _Move_ leaves **x** with **y**'s former value and **y** with some _moved-from state_. For the most intersting cases, containers, that moved-from state is "empty"
+  - Typically, a move cannot throw, whereas a copy might (because it may need to acquire a resource), and a move is often more efficient than a copy
+  - When write a move operation, we should leave the source object in a valid but unspecified state beacuse it will eventually be destroyed and the destructor cannot destroy an object left in an invalid state
+  - So, design the moves to to throw, and to leave the source objects in a state that allows destruction and assignment  
 - Copy:
   - Copy for a class X is defined by two operations:
     - Copy constructor: **X(const X&)**
