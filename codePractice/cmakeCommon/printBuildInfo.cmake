@@ -1,0 +1,22 @@
+# PrintBuildInfo.cmake
+if(NOT _PRINT_BUILD_INFO_INCLUDED)
+set(_PRINT_BUILD_INFO_INCLUDED TRUE)
+
+function(print_build_info)
+    message(STATUS "")
+    message(STATUS "=========== Build Configuration Info ===========")
+    message(STATUS "Build type           : ${CMAKE_BUILD_TYPE}")
+    message(STATUS "C++ compiler         : ${CMAKE_CXX_COMPILER}")
+    message(STATUS "C++ compiler ID      : ${CMAKE_CXX_COMPILER_ID}")
+    message(STATUS "C++ compiler version : ${CMAKE_CXX_COMPILER_VERSION}")
+    message(STATUS "C++ flags            : ${CMAKE_CXX_FLAGS}")
+    message(STATUS "  Debug              : ${CMAKE_CXX_FLAGS_DEBUG}")
+    message(STATUS "  Release            : ${CMAKE_CXX_FLAGS_RELEASE}")
+    message(STATUS "  RelWithDebInfo     : ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+    message(STATUS "  MinSizeRel         : ${CMAKE_CXX_FLAGS_MINSIZEREL}")
+    message(STATUS "Linker flags         : ${CMAKE_EXE_LINKER_FLAGS}")
+    message(STATUS "=================================================")
+    message(STATUS "")
+endfunction()
+
+endif()
