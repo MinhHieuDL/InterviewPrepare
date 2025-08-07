@@ -1,17 +1,19 @@
+#pragma once
+
 #include <vector>
 
-typedef struct{
+struct STATE_EVENT_CONTROL{
     unsigned char m_eventID;
     unsigned char m_nextState;
     unsigned char m_actionID;
-} STATE_EVENT_CONTROL;
+};
 
-typedef struct{
+struct STATE{
     unsigned char m_stateID;
     unsigned char m_enterActionID;
     unsigned char m_exitActionID;
     std::vector<STATE_EVENT_CONTROL> m_EventControlStateList;
-} STATE;
+};
 
 class CStateMachine {
     private:
@@ -23,9 +25,10 @@ class CStateMachine {
         virtual void CallMapAction(unsigned char ucActionID) = 0;
     
     public:
+        CStateMachine(/* args */);
+        virtual ~CStateMachine();
+        
         void Init(std::vector<STATE> StateList, unsigned char ucFirstState);
         void HandleEvt(unsigned char ucEvt);
-        CStateMachine(/* args */);
-        ~CStateMachine();
 };
 
