@@ -12,6 +12,11 @@ constexpr float callOffsetDegC = 1.25f;
 constexpr float minDefC = 0.0f;
 constexpr float maxDefC = 100.0f;
 
+template<typename F, typename G>
+auto compose(F f, G g){
+    return [=](auto x){return f(g(x));};
+}
+
 auto adc_to_voltage = [](uint16_t adc) {
     return ((float)adc) * (v_ref / resolution);
 };
@@ -31,12 +36,23 @@ auto clamp_range = [](float tempC) {
 };
 
 // Sensor processing pipeline
+/*
 auto process_temperature =[](uint16_t adc_val) {
     float voltage = adc_to_voltage(adc_val);
     float temp = voltage_to_temperature(voltage);
     temp = apply_calibration(temp);
     return clamp_range(temp);
 };
+*/
+auto process_temperature = 
+    compose(
+        clamp_range,
+            compose(
+                apply_calibration, 
+                compose(
+                    voltage_to_temperature, 
+                    adc_to_voltage))
+    );
 
 int main() {
     uint16_t adc_samples[] = { 100, 200, 400, 512, 768, 900, 1023 };
