@@ -14,10 +14,9 @@ endif()
 # Main logic part 
 
 add_executable(${PROJECT_NAME}
-    src/sensor.cpp
     src/main.cpp)
 
 # Set include directories
-target_include_directories(${PROJECT_NAME} PRIVATE
-    include
-)
+# target_include_directories(${PROJECT_NAME} PRIVATE
+#     include
+# )
