@@ -1,28 +1,32 @@
-// sensor_pipeline.c
-// C-style version of Sensor Data Processing
 
-#include <stdio.h>
-#include <stdint.h>
+#include <iostream>
+#include <cstdint>
+
+using namespace std;
+
+constexpr float v_ref = 3.3f;
+constexpr int resolution = 1023; // 10-bit ADC
+constexpr float tempOffsetV = 0.5f; // 500mv offset 
+constexpr float degPerVold = 100.0f;
+constexpr float callOffsetDegC = 1.25f;
+constexpr float minDefC = 0.0f;
+constexpr float maxDefC = 100.0f;
 
 auto adc_to_voltage = [](uint16_t adc) {
-    const float v_ref = 3.3f;
-    const int resolution = 1023; // 10-bit ADC
     return ((float)adc) * (v_ref / resolution);
 };
 
 auto voltage_to_temperature = [](float voltage) {
-    // Simple linear temp sensor: 10mV/degC with 500mV offset
-    return (voltage - 0.5f) * 100.0f;
+    return (voltage - tempOffsetV) * degPerVold;
 };
 
 auto apply_calibration = [](float tempC) {
-    const float offset = 1.25f;
-    return tempC + offset;
+    return tempC + callOffsetDegC;
 };
 
 auto clamp_range = [](float tempC) {
-    if (tempC < 0.0f) return 0.0f;
-    if (tempC > 100.0f) return 100.0f;
+    if (tempC < minDefC) return minDefC;
+    if (tempC > maxDefC) return maxDefC;
     return tempC;
 };
 
@@ -38,10 +42,10 @@ int main() {
     uint16_t adc_samples[] = { 100, 200, 400, 512, 768, 900, 1023 };
     size_t count = sizeof(adc_samples) / sizeof(adc_samples[0]);
 
-    printf("Processed Temperature Readings:\n");
-    for (size_t i = 0; i < count; ++i) {
-        float temp = process_temperature(adc_samples[i]);
-        printf("ADC: %u  ->  Temp: %.2f°C\n", adc_samples[i], temp);
+    cout << "Processed Temperature Readings" << '\n';
+    for (auto adc : adc_samples) {
+        float temp = process_temperature(adc);
+        cout << "ADC: " << adc << " ->  Temp: " << temp << '\n';
     }
 
     return 0;
