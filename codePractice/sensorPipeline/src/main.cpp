@@ -17,6 +17,17 @@ auto compose(F f, G g){
     return [=](auto x){return f(g(x));};
 }
 
+template<typename T, typename F>
+auto pipe(T x, F f){
+    return f(x);
+}
+
+template<typename T, typename F, typename... Fs>
+auto pipe(T x, F f, Fs... fs){
+    return pipe(f(x), fs...);
+}
+
+
 auto adc_to_voltage = [](uint16_t adc) {
     return ((float)adc) * (v_ref / resolution);
 };
@@ -44,6 +55,8 @@ auto process_temperature =[](uint16_t adc_val) {
     return clamp_range(temp);
 };
 */
+
+/*
 auto process_temperature = 
     compose(
         clamp_range,
@@ -53,6 +66,14 @@ auto process_temperature =
                     voltage_to_temperature, 
                     adc_to_voltage))
     );
+*/
+
+auto process_temperature = [](int adc){
+    return pipe(adc,
+                adc_to_voltage,
+                voltage_to_temperature,
+                apply_calibration,
+                clamp_range);};
 
 int main() {
     uint16_t adc_samples[] = { 100, 200, 400, 512, 768, 900, 1023 };
