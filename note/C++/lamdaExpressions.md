@@ -59,17 +59,17 @@
         for_each(begin(v), end(v), Modulo_print{os,m});
     }
     ```
-    - Compared to that, the version using the lambda is a clear winner. If we really want a name, we can just name the lambda:
-        ```cpp
-        void print_modulo(const vector<int>& v, ostream& os, int m)
-            // output v[i] to os if v[i]%m==0
-        {
-            auto Modulo_print = [&os,m](int x){if (x%m==0) os << x << '\n';};
-            for_each(begin(v), end(v), Modulo_print);
-        }
-        ```
-    - Naming the lambda is often a good idea. Doing so foreces us to consider the design of the operation a bit more carefully. It also simplifies code layout and allows for recursion
-    - Writing a for-loop is an alternative to using a lambda with a **for_each()**. Consider:
+  - Compared to that, the version using the lambda is a clear winner. If we really want a name, we can just name the lambda:
+      ```cpp
+      void print_modulo(const vector<int>& v, ostream& os, int m)
+          // output v[i] to os if v[i]%m==0
+      {
+          auto Modulo_print = [&os,m](int x){if (x%m==0) os << x << '\n';};
+          for_each(begin(v), end(v), Modulo_print);
+      }
+      ```
+  - Naming the lambda is often a good idea. Doing so foreces us to consider the design of the operation a bit more carefully. It also simplifies code layout and allows for recursion
+  - Writing a for-loop is an alternative to using a lambda with a **for_each()**. Consider:
         ```cpp
         void print_modulo(const vector<int>& v, ostream& os, int m)
             // output v[i] to os if v[i]%m==0
