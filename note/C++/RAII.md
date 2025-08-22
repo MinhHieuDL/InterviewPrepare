@@ -5,7 +5,7 @@ What is meant by Resource Acquisition is Initialization (RAII)?
 **A:** <br>
 It's a really terrible name for an incredibly powerful concept, and perhaps one of the number 1 things that C++ developers miss when they switch to other languages. There has been a bit of a movement to try to rename this concept as **Scope-Bound Resource Management**, though it doesn't seem to have caught on just yet. 
 
-When we say 'Resource' we don't just mean memory - it could be file handles, network sockets, database handles, GDI objects...  In short, things that we have a finite supply of and so we need to be able to control their usage. The 'Scope-bound' aspect means that the lifetime of the object is bound to the scope of a variable, so when the varable goes out of scope then the destructor will release the resource. A very useful property of this is that it makes for greater exception-safety. For instance, compare this:
+When we say 'Resource' we don't just mean memory - it could be file handles, network sockets, database handles, GDI objects...  In short, things that we have a finite supply of and so we need to be able to control their usage. The 'Scope-bound' aspect means that the lifetime of the object is bound to the scope of a variable, so when the variable goes out of scope then the destructor will release the resource. A very useful property of this is that it makes for greater exception-safety. For instance, compare this:
 
 ```cpp
 RawResourceHandle* handle = createNewResource();
@@ -27,7 +27,7 @@ class ManagedResourceHandle {
 ManagedResourceHandle handle(createNewResource());
 handle->performInvalidOperation();
 ```
-In this latteer case, when the exception is thrown and the stack is unwound, the local variables are destroyed which ensures that our resource is cleaned up and doesn't leak
+In this later case, when the exception is thrown and the stack is unwound, the local variables are destroyed which ensures that our resource is cleaned up and doesn't leak
 
 **A:** <br>
 This is a programming idiom which briefly means that you:
