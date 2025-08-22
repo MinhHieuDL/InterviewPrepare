@@ -4,12 +4,12 @@
 class Stack
 {
     private:
-        unsigned m_iStackSize;
+        std::size_t m_siStackSize;
         int m_iStackTop;
         std::unique_ptr<int[]> m_pStackPool;
     public:
         // member fucntion
-        Stack(const unsigned uiStackSize);
+        explicit Stack (std::size_t siSize);
         ~Stack();
         void push(int iData);
         int pop();
@@ -20,5 +20,8 @@ class Stack
         } ;
         struct exStackEmpty : std::runtime_error{
             exStackEmpty() : std::runtime_error{"Stack is empty!"} {} 
+        };
+        struct exStackInvalidArg : std::runtime_error{
+            exStackInvalidArg() : std::runtime_error{"Stack size must be > 0"} {}
         };
 };
