@@ -3,7 +3,7 @@
 class Stack
 {
     private:
-        int m_iStackSize;
+        unsigned m_iStackSize;
         int m_iStackTop;
         int* m_pStackPool;
     public:

@@ -26,5 +26,7 @@ int main(void)
     {
         cout << "Stack Empty" << endl;
     }
+
+    cout << "Program done" << endl;
     return 0;
 }
