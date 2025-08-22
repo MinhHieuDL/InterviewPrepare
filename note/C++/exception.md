@@ -57,3 +57,10 @@ even harder to arrange for error values to be communicated from a class member f
         return 0;
    }
    ```
+- Sequence of events when an exception occurs:
+  - Code is executing normally outside a try block
+  - Control enters the try block
+  - A statement in the try block causes an error in a member function
+  - The member function throws an exception 
+  - Control transfers to the exception handler (catch block) following the try block
+  - Control passes to the statement following all the catch blocks
