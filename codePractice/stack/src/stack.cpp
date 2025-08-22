@@ -3,7 +3,7 @@
 
 Stack::Stack(const unsigned uiStackSize):
     m_iStackSize{uiStackSize},
-    m_iStackTop{-1}
+    m_iStackTop{0}
 {
     m_pStackPool = new int[uiStackSize];
 };
@@ -19,7 +19,7 @@ void Stack::push(int iData)
 {
     if(m_iStackTop >= m_iStackSize)
         throw exStackFull{};
-    m_pStackPool[++m_iStackTop] = iData;
+    m_pStackPool[m_iStackTop++] = iData;
 };
 
 int Stack::pop()
