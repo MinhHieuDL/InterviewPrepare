@@ -1,11 +1,12 @@
 #pragma once
 #include <stdexcept>
+#include <memory>
 class Stack
 {
     private:
         unsigned m_iStackSize;
         int m_iStackTop;
-        int* m_pStackPool;
+        std::unique_ptr<int[]> m_pStackPool;
     public:
         // member fucntion
         Stack(const unsigned uiStackSize);

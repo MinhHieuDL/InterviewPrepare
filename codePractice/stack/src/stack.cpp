@@ -3,16 +3,14 @@
 
 Stack::Stack(const unsigned uiStackSize):
     m_iStackSize{uiStackSize},
-    m_iStackTop{0}
+    m_iStackTop{0},
+    m_pStackPool{std::make_unique<int[]>(uiStackSize)}
 {
-    m_pStackPool = new int[uiStackSize];
 };
 
 Stack::~Stack()
 {
-    std::cout << "delete stack pool" << std::endl;
-    delete[] m_pStackPool;
-    m_pStackPool = nullptr;
+    std::cout << "Stack destructed" << std::endl;
 };
 
 void Stack::push(int iData)
