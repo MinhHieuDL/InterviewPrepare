@@ -11,8 +11,8 @@ int main(void)
         stackObj.push(1);
         stackObj.push(2);
         stackObj.push(3);
-        stackObj.push(4);
-        stackObj.push(5);
+        stackObj.push(4); // comment out this 2 lines to test pop exception 
+        stackObj.push(5); // comment out this 2 lines to test pop exception
         cout << "Stack pop: " << stackObj.pop() << endl;
         cout << "Stack pop: " << stackObj.pop() << endl;  
         cout << "Stack pop: " << stackObj.pop() << endl;
