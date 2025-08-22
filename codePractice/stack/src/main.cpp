@@ -18,13 +18,9 @@ int main(void)
         cout << "Stack pop: " << stackObj.pop() << endl;
         cout << "Stack pop: " << stackObj.pop() << endl;
     }
-    catch(Stack::exStackFull)
+    catch(const runtime_error& e)
     {
-        cout << "Stack Full" << endl;
-    }
-    catch(Stack::exStackEmpty)
-    {
-        cout << "Stack Empty" << endl;
+        cout << e.what() << endl;
     }
 
     cout << "Program done" << endl;

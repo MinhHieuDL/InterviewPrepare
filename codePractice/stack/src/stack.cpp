@@ -1,5 +1,5 @@
-#include "stack.h"
 #include <iostream>
+#include "stack.h"
 
 Stack::Stack(const unsigned uiStackSize):
     m_iStackSize{uiStackSize},

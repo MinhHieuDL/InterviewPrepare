@@ -1,5 +1,5 @@
 #pragma once
-
+#include <stdexcept>
 class Stack
 {
     private:
@@ -14,6 +14,10 @@ class Stack
         int pop();
 
         // class exception
-        class exStackFull{};
-        class exStackEmpty{};
+        struct exStackFull : std::runtime_error{
+            exStackFull() : std::runtime_error{"Stack is full!"} {} 
+        } ;
+        struct exStackEmpty : std::runtime_error{
+            exStackEmpty() : std::runtime_error{"Stack is empty!"} {} 
+        };
 };
