@@ -57,3 +57,27 @@ even harder to arrange for error values to be communicated from a class member f
         return 0;
    }
    ```
+- Sequence of events when an exception occurs:
+  - Code is executing normally outside a try block
+  - Control enters the try block
+  - A statement in the try block causes an error in a member function
+  - The member function throws an exception 
+  - Control transfers to the exception handler (catch block) following the try block
+  - Control passes to the statement following all the catch blocks
+  
+**Exception Notes**
+- Function Nesting:
+  - The statement that causes an exception need not be located directly in the try block; it can also be in a function that is called by a statement in the try block (or in a function called by a function that is called by a statement in the try block, and so on)
+  - We only need to install a try block on the program's upper level
+- Not for every situation:
+  - Exceptions should not be used for every kind of error
+  - They impose a certain overhead in term of program size and (when an exception occurs) time
+  - For example, exceptions should probably not be used for user input errors (such as inserting letters into numerical input) that are easily detectable by the program
+- Destructor called automatically:
+  -  When an exception is thrown, a destructor is called automatically for any object that was created by the code up to that point in the try block
+  -  This is necessary because the application won’t know which statement caused the exception, and if it wants to recover from the error, it will (at the very least) need to start over at the top of the try block
+  -  The exception mechanism guarantees that the code in the try block will have been “reset,” at least as far as the existence of objects is concerned
+- Handling exceptions:
+  - After you catch an exception, you will sometimes want to terminate your application. The exception mechanism gives you a chance to indicate the source of the error to the user, and to perform any necessary clean-up chores before terminating. . It also makes clean-up easier by executing the destructors for objects created in the try block. This allows you to release system resources, such as memory, that such objects may be using
+  - In other cases you will not want to terminate your program. Perhaps your program can figure out what caused the error and correct it, or the user can be asked to input different data.  When this is the case, the try and catch blocks are typically embedded in a loop, so control can be returned to the beginning of the try block (which the exception mechanism has attempted to restore to its initial state)
+  - If there is no exception handler that matches the exception thrown, the program is unceremoniously terminated by the operating system
