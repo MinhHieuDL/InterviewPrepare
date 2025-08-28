@@ -64,6 +64,7 @@ even harder to arrange for error values to be communicated from a class member f
   - The member function throws an exception 
   - Control transfers to the exception handler (catch block) following the try block
   - Control passes to the statement following all the catch blocks
+  
 **Exception Notes**
 - Function Nesting:
   - The statement that causes an exception need not be located directly in the try block; it can also be in a function that is called by a statement in the try block (or in a function called by a function that is called by a statement in the try block, and so on)
