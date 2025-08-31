@@ -40,7 +40,7 @@
         for_each(begin(v), end(v), Modulo_pint{os,m});
     }
     ```
-  - If a lambda potentially captures every local variable by referencr (using the capture list **[&]**), the closure may be optimized to simply contain a pointer to the enclosing stack frame
+  - If a lambda potentially captures every local variable by reference (using the capture list **[&]**), the closure may be optimized to simply contain a pointer to the enclosing stack frame
 - Alternatives to Lambdas:
   - Many lambdas are small and used only once. For such uses, the realistic equivalent involes a local class defined immediately before its (only) use. For example:
     ```cpp
@@ -89,7 +89,7 @@
     - **[=, capture-list]**: mplicitly capture by value all local variables with names not mentioned in the list. The capture list cannot contain this. The listed names must be preceded by &. Variables named in the capture list are captured by reference
   - Only capture by reference allows modification of variables in the calling environment
   - Use the capture by reference if need to write to the captured object or if it is large
-  - Because, for lambdas, there is the added concern that a lambda might outlive its caller. When passing a lambda to another threadm captureing by value (**[=]**) is typically the best: accessing another thread's stack through a reference or a pointer can be most disruptive (to performance or correctness), and trying to access the stack of a terminated thread can lead to extremely difficult-to-find errors
+  - Because, for lambdas, there is the added concern that a lambda might outlive its caller. When passing a lambda to another thread capturing by value (**[=]**) is typically the best: accessing another thread's stack through a reference or a pointer can be most disruptive (to performance or correctness), and trying to access the stack of a terminated thread can lead to extremely difficult-to-find errors
 - **mutable** lambdas:
   - Usually, we don’t want to modify the state of the function object (the closure), so by default we can't
   - That is, the **operator()()** for the generated function object is a const member fucntion
