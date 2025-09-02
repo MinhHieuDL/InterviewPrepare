@@ -26,7 +26,7 @@
         ostream& os; // members to hold the capture list
         int m;
     public:
-        Modulo_pint(ostream& os, int mm) : os(s), m(mm){} // cature
+        Modulo_print(ostream& os, int mm) : os(s), m(mm){} // cature
         void operator()(int x) cosnt {
             if(x%m == 0) os << x << '\n';
         }
@@ -37,7 +37,7 @@
     void print_modulo(const vector<int>& v, ostream& os, int m)
         // output v[i] to os if v[i]%m==0
     {
-        for_each(begin(v), end(v), Modulo_pint{os,m});
+        for_each(begin(v), end(v), Modulo_print{os,m});
     }
     ```
   - If a lambda potentially captures every local variable by reference (using the capture list **[&]**), the closure may be optimized to simply contain a pointer to the enclosing stack frame
