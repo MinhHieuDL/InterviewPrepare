@@ -13,9 +13,9 @@ endif()
 # main logic part
 add_executable(${PROJECT_NAME}
     src/main.cpp
-    src/stack.cpp
+    src/stack.hpp
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE
-    ./include
-)
+# target_include_directories(${PROJECT_NAME} PRIVATE
+#     ./include
+# )
