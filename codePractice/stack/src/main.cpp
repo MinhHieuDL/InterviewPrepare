@@ -7,7 +7,7 @@ int main(void)
 {
     try
     {
-        Stack stackObj(3);
+        Stack<int> stackObj(3);
         stackObj.push(1);
         stackObj.push(2);
         stackObj.push(3);

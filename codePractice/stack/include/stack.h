@@ -1,18 +1,19 @@
 #pragma once
 #include <stdexcept>
 #include <memory>
+template<typename T>
 class Stack
 {
     private:
         std::size_t m_siStackSize;
         int m_iStackTop;
-        std::unique_ptr<int[]> m_pStackPool;
+        std::unique_ptr<T[]> m_pStackPool;
     public:
         // member fucntion
         explicit Stack (std::size_t siSize);
         ~Stack();
-        void push(int iData);
-        int pop();
+        void push(T tData);
+        T pop();
 
         // class exception
         struct exStackFull : std::runtime_error{
