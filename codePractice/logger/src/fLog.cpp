@@ -14,7 +14,7 @@ void fLog::log(LOG_LVL eLevel, std::string msg)
 {
     if(m_ofStream.is_open())
     {
-        m_ofStream << "[" << lvl_string.at(eLevel) << "] " << msg << "\n";
+        m_ofStream << "[" << lvl_string.at(eLevel) << "] " << msg << std::endl;
     }
     else {
         std::cout << "Error: Unable to open log file" << std::endl;
