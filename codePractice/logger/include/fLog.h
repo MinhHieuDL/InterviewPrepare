@@ -1,3 +1,5 @@
+#pragma once
+
 #include "iLog.h"
 #include <fstream>
 

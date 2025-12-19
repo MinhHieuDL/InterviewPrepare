@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include <map>
 #include <vector>
@@ -14,6 +16,6 @@ class iLog
 {       
     public:
         iLog()=default;
-        ~iLog()=default;
+        virtual ~iLog()=default;
         virtual void log(LOG_LVL eLevel, std::string msg)=0;
 };
