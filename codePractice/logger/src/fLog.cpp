@@ -10,7 +10,7 @@ fLog::~fLog()
     m_ofStream.close();
 }
 
-void fLog::log(LOG_LVL eLevel, std::string msg)
+void fLog::log(LOG_LVL eLevel, const std::string &msg)
 {
     if(m_ofStream.is_open())
     {

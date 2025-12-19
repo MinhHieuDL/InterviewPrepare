@@ -11,6 +11,6 @@ class fLog : public iLog {
         fLog(std::string sFileName);
         ~fLog();
 
-        void log(LOG_LVL eLevel, std::string msg);
+        void log(LOG_LVL eLevel, const std::string &msg) override;
 
 };
