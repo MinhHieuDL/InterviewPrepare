@@ -19,6 +19,6 @@ void fLog::log(LOG_LVL eLevel, const std::string &msg)
                    << msg << std::endl;
     }
     else {
-        std::cout << "Error: Unable to open log file" << std::endl;
+        std::cerr << "Error: Unable to open log file" << std::endl;
     }
 }
