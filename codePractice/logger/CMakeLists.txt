@@ -4,6 +4,7 @@ project(logger)
 
 add_executable(${PROJECT_NAME}
     src/fLog.cpp
+    src/logHelper.cpp
     src/main.cpp
 )
 
