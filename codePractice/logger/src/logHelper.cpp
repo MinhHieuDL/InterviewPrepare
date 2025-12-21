@@ -4,7 +4,7 @@
 #define ENTRY(value) case value: return #value;
 
 #define DEFINE_TO_STR(TABLE, type_name)                 \
-    const char* toStringHelper(type_name eValue) \
+    const char* toStringHelper(type_name eValue)        \
     {                                                   \
         switch (eValue)                                 \
         {                                               \
