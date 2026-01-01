@@ -70,14 +70,14 @@
       ```
   - Naming the lambda is often a good idea. Doing so foreces us to consider the design of the operation a bit more carefully. It also simplifies code layout and allows for recursion
   - Writing a for-loop is an alternative to using a lambda with a **for_each()**. Consider:
-        ```cpp
-        void print_modulo(const vector<int>& v, ostream& os, int m)
-            // output v[i] to os if v[i]%m==0
-        {
-            for(auto x : v)
-                if(x%m==0) os << x << '\n';
-        }
-        ```
+      ```cpp
+      void print_modulo(const vector<int>& v, ostream& os, int m)
+          // output v[i] to os if v[i]%m==0
+      {
+          for(auto x : v)
+              if(x%m==0) os << x << '\n';
+      }
+      ```
 - Capture:
   - _Lamdba introducer_ **[]**
   - A lambda introducer can take various forms:

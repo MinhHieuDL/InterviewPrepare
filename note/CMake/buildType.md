@@ -21,6 +21,7 @@
     cmake --build .
     ```
   - Rather than switching between different build types in the same build directory, an alternative strategy is to set up separate build directories for each build type, all still using the same source. The directory structure might look something like this:
+  
     ![build type directory structure](./images/build_type_directory_structure.png)
     <p align="center"><i> Figure 1: build type directory structure </p></i>
 
