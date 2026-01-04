@@ -7,6 +7,7 @@ add_executable(${PROJECT_NAME}
     src/fLog.cpp
     src/logHelper.cpp
     src/main.cpp
+    src/logQueue.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
