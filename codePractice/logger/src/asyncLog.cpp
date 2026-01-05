@@ -1,39 +1,72 @@
+#include <chrono>
+#include <stdexcept>
 #include "asyncLog.h"
 
-AsyncLog::AsyncLog(iLog* pLogSynk){
-    m_pLogSynk = std::unique_ptr<iLog>{pLogSynk};
+AsyncLog::AsyncLog(std::unique_ptr<iLog> pLogSynk)
+    : m_pSink(std::move(pLogSynk))
+{
+    if(!m_pSink)
+        throw std::invalid_argument("AsyncLog sink is null");
 }
 
 AsyncLog::~AsyncLog(){
-    m_logQueue.shutdown();
+    stop();
 }
 
-uint64_t AsyncLog::getTimeStamp()
+uint64_t AsyncLog::getTimeStampMs()
 {
-    auto now = std::chrono::system_clock::now();
+    using namespace std::chrono;
+    auto now = system_clock::now();
     auto duration = now.time_since_epoch();
 
-    auto miliseconds = std::chrono::duration_cast<std::chrono::microseconds>(
-                        duration)
-                        .count();
+    auto miliseconds = duration_cast<std::chrono::milliseconds>(
+                       duration)
+                       .count();
+
     return (uint64_t)miliseconds;
 }
 
-void AsyncLog::log(LOG_LVL eLevel,const std::string &msg)
+bool AsyncLog::log(LOG_LVL eLevel,const std::string &msg)
 {
-    std::string strLogMsg = '[' + toStringHelper(eLevel) + ']' + ' ' + 
-                            '[' + getTimeStamp() + ']' + ' ' +
-                            msg;
+    if(!m_bStarted.load()) return false;
 
-    m_logQueue.pushMsg(strLogMsg);
+    //format message to log
+    std::string strLogMsg;
+    strLogMsg += "[";
+    strLogMsg += toStringHelper(eLevel);
+    strLogMsg += "] ";
+    strLogMsg += "[";
+    strLogMsg += std::to_string(getTimeStampMs());
+    strLogMsg += "] ";
+    strLogMsg += msg;
+
+    return m_logQueue.pushMsg(std::move(strLogMsg));
+}
+
+void AsyncLog::workerLoop()
+{
+    std::string strLog;
+    while (m_logQueue.wait_and_pop(strLog))
+    {
+        m_pSink->log(strLog);
+    }
 }
 
 void AsyncLog::start()
 {
-    std::string logToWrite;
+    bool b_Expected = false;
+    if (!m_bStarted.compare_exchange_strong(b_Expected, true))
+        return; // already started
 
-    while(m_logQueue.wait_and_pop(logToWrite))
-    {
-        m_pLogSynk->log(logToWrite);
-    }
+    m_thrWorker = std::thread(&AsyncLog::workerLoop, this);
+}
+
+void AsyncLog::stop()
+{
+    if (!m_bStarted.exchange(false))
+        return;
+
+    m_logQueue.shutdown();
+
+    if(m_thrWorker.joinable()) m_thrWorker.join();
 }
