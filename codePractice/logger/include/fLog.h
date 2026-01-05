@@ -19,6 +19,6 @@ class fLog : public iLog {
         fLog(fLog&&) noexcept = default;
         fLog& operator=(fLog&&) noexcept = default;
 
-        void log(LOG_LVL eLevel, const std::string &msg) override;
+        void log(const std::string &msg) override;
 
 };
