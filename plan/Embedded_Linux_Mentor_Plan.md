@@ -2,11 +2,13 @@
 
 **Goal:** Level up from intermediate embedded C/C++ engineer to job-ready middle/senior embedded software developer, focused on Embedded Linux (kernel → application) and CI/CD for embedded projects.
 
-**Timeline:** ~11 weeks, 15+ hrs/week
+**Timeline:** ~11 weeks of material, 15+ hrs/week (actual pace slower; that's fine — retention over speed)
 **Started:** 2026-06-21
-**Reference material:** *The Design of the UNIX Operating System* (Bach) for internals theory, *Linux Device Drivers, 3rd Ed* (LDD3) for hands-on driver development (note: LDD3 targets kernel 2.6 — APIs will be modernized to current kernel during lessons)
+**Reference material:** *The Design of the UNIX Operating System* (Bach) for internals theory, *Linux Device Drivers, 3rd Ed* (LDD3) for hands-on driver development (LDD3 targets kernel 2.6 — APIs are modernized during lessons, e.g. `class_create(name)` since 6.4)
 
-**Runbooks:** `FLASH.md` — full BBB flash + dev-environment setup procedure (created 2026-09-20 after SD-card-corruption rebuild). Follow it to reproduce the board setup.
+**Companion docs:**
+- `FLASH.md` — BBB flash + dev-environment runbook (flash, boot, SSH, kernel build, module load loop)
+- `Week1_Review.md`, `Week2_Review.md`, `Week3_Review.md` — per-week study docs with ⚠️ gap boxes and cold self-tests
 
 ---
 
@@ -14,148 +16,130 @@
 
 - This is a **living record**. Update the diagnostic table as topics are revisited and retested.
 - Status legend: ✅ Solid | ⚠️ Partial/needs reinforcement | ❌ Gap (not yet built) | 🔁 Reinforced (was a gap, now solid after review)
-- Re-run a mini diagnostic every 2-3 weeks to check retention, not just first-pass understanding. Update the table — don't just append.
+- Update the table in place — don't just append.
 
 ---
 
-## Initial Diagnostic Summary (2026-06-21)
+## Session-Start Protocol (for Claude)
 
-A baseline check-in before starting the structured plan, covering core OS/process/memory concepts from Bach. Purpose: find out what's *actually* retained vs. forgotten, and at what depth (policy-level vs. mechanism-level).
+1. **The user begins each study day with a message starting with "Start".** On that keyword: check today's date against the Review Schedule below, say how many days since the last session, and flag any mini-drill / mock that is due or overdue.
+2. The user decides: run the review now, or defer (if deferred, agree a concrete date and record it).
+3. After each review: mark it done in the schedule, log results in the Progress Log, update the diagnostic table (fumbled → ⚠️ with note; solid twice → ✅).
+4. Pacing rule (user request): **one topic / one sub-mechanism per message**; clear the user's questions before moving on. Never batch several mechanisms into one long message.
+5. Drill/mock rule: no teaching during the review; full debrief at the end.
+
+---
+
+## Diagnostic Table (baseline 2026-06-21, updated through R2 mock 2026-10-11)
 
 | # | Area | Status | Notes |
 |---|------|--------|-------|
-| 1 | Scheduling triggers (timeslice expiry, blocking, priority) | ✅ Solid | Correctly explained when context switches happen |
-| 2 | Context switch mechanism (what's saved, where) | ✅ Solid (W1 built, mock-confirmed) | Full register set → thread_struct / cpu_context_save; pt_regs vs thread_struct; switch_to(); current; CR3/TTBR0 + TLB flush cost. Mock Jul 17: clean, graduated. |
-| 3 | Syscall mechanism | ✅ Solid (mock-confirmed) | Address-space misconception fully corrected: ring 3→0 / EL0→EL1, user→kernel stack, page tables unchanged, syscall/SVC gate, CPL in CS. Mock Jul 17: clean. |
-| 4 | fork() semantics | 🔁 Reinforced — ⚠️ **COW granularity soft** | Model solid. **GAP (drill + mock Jul 17): COW copies ONE PAGE (4KB), not "4 bytes." Also MMU-detects-vs-kernel-repairs blurred. Re-drill.** |
-| 5 | Thread semantics | ✅ Solid (W2 deepened) | thread = task_struct via clone(CLONE_VM/FILES); shared mm → no CR3 reload; own stack but no inter-thread stack protection. |
-| 6 | Virtual memory — why it exists | 🔁 Reinforced | Isolation + fragmentation + overcommit derived independently. MMU, multi-level page tables, PTEs, VMA-vs-page-table, demand paging, TLB, /proc/self/maps. |
-| 7 | Buffer cache / write-back | ✅ Solid | Reinforced during open/read syscall walkthrough. |
-| 8 | Race conditions — scenario level | ✅ Solid | Constructed valid check-then-act race unprompted; reinforced through W2. |
-| 9 | Race conditions — instruction-level (atomicity) | 🔁 Reinforced (W2) | Built with real disassembly of user's own race.c; lost update, lock addq, atomicity-doesn't-compose (derived independently). CAS vs exchange, futex. |
-| 10 | Interrupt vs syscall | ✅ Solid | Correctly distinguished hardware- vs software-triggered. |
-| 11 | Kernel space vs user space — why | ✅ Solid (mock-confirmed) | Privilege rings HW-enforced; controlled-gate entry; ARM EL0/EL1 + SVC. Mock Jul 17: closed the jump-to-kernel-addr loophole cleanly. Graduated. |
-| 12 | Page faults | ⚠️ Partial (preview) — **MMU-vs-kernel roles soft** | **GAP (mock Jul 17): user blurred "MMU allocates/copies" — correct is MMU *detects* + faults, kernel handler *repairs*. Full depth Week 7.** |
-| 13 | fd / open file table / inode (3-layer model) | 🔁 Reinforced — ⚠️ **scope-labeling wobble** | **GAP (mock Jul 17): middle layer (struct file) mislabeled "per-process" then said fork "shares" it — contradiction. Correct: fd table = per-process (copied); struct file = KERNEL-GLOBAL (shared); inode = kernel-global. All live in kernel memory, user can't touch. Re-drill — softest spot.** |
-| 14 | Disk block mapping | ⚠️ Partial | Light coverage during read() walkthrough. Lower priority. |
+| 1 | Scheduling triggers | ✅ Solid | |
+| 2 | Context switch mechanism | ✅ Solid | pt_regs vs thread_struct/cpu_context_save, switch_to, current, CR3/TTBR0 + TLB flush. Graduated R1. |
+| 3 | Syscall mechanism | ✅ Solid | ring 3→0 / EL0→EL1, stack switch, page tables unchanged. Graduated R1. |
+| 4 | fork() / COW | ✅ **Graduated (R2 Oct 11)** | One 4 KB page copied, parent sees old value — answered cleanly. Refinements: hardware has **no COW bit** (kernel marks PTE read-only; "COW-ness" = VMA writable + PTE read-only, known by software); the new page is a full copy because it replaces the child's whole view of that page; child gets its own mm_struct/page tables pointing at shared pages. |
+| 5 | Thread semantics | ✅ Solid | clone flags, shared mm → no CR3 reload. |
+| 6 | Virtual memory — why | 🔁 Reinforced | |
+| 7 | Buffer cache / write-back | ✅ Solid | |
+| 8 | Races — scenario level | ✅ Solid | |
+| 9 | Races — instruction level | 🔁 Reinforced (W2) | own race.c disassembly, lock addq, atomicity doesn't compose. |
+| 10 | Interrupt vs syscall | ✅ Solid | |
+| 11 | Kernel vs user space | ✅ Solid | Graduated R1. |
+| 12 | Page faults — who does what | ✅ **Graduated (R2 Oct 11)** | "MMU detects + faults (hardware), kernel handler checks VMA + repairs (software)" stated correctly unprompted. Full depth still Week 7. |
+| 13 | fd / struct file / inode | ⚠️ **Scope fixed, 2 errors left** | R2: scope now correct (fd table per-process; open-file entry + inode shared; all in kernel memory, syscall-only access). **Still wrong:** (a) **names swapped** — said "file_struct"; correct: `struct file` = open-file entry (f_pos, f_op, private_data), `struct files_struct` = per-process fd-table container (`task_struct->files`); (b) **shared f_pos consequence** — said forked writes overwrite; correct: shared `struct file` → shared f_pos advanced inside each write → child's BBB lands **after** AAA. Independent open() → separate f_pos both at 0 → **does** overwrite; fix = `O_APPEND`. |
+| 14 | Disk block mapping | ⚠️ Partial | Low priority. |
+| 15 | Mutex fast path (uncontended = 0 syscalls) | ✅ **Graduated (R2)** | W2 drill miss, now correct with 0/1/2 + CAS/exchange. Slip: said "kernel CAS" — the **thread** executes the atomic in user space. |
+| 16 | Condvar while-not-if | ✅ **Graduated (R2)** | Stolen-condition reason correct. Add second reason: spurious wakeups. |
+| 17 | Kernel return convention + init unwind | ⚠️ | R2: unwind order + IS_ERR + leak correct; next-insmod analysis correct after probe (new major, then class_create → -EEXIST). **First instinct was "return 0" on failure** (dangerous: kernel keeps half-built module). Rule: **return the negative errno received (`return ret;`)**; never 0 or -1 (in kernel, -1 = -EPERM, misleading). Classic mistake: `if (!cls)` instead of `IS_ERR(cls)`. |
+| 18 | Host tools vs target code (HOSTCC vs CROSS_COMPILE) | ⚠️ | W3 drill ❌ → R2 core only ("ARM binary can't run on x86"). Missing: fixdep is a **host helper tool** the build **executes on the PC**, built by **HOSTCC**; target-built headers package ships an ARM one. |
+| 19 | Why Kbuild, not bare gcc | ❌ **3rd miss (D4 drill, R2)** | R2 answer gave architecture + "library linking" — both wrong (they already use an ARM gcc; kernel has no library to link). The three real reasons: (1) exact kernel compiler flags/config defines → wrong flags = different struct layouts = silent corruption; (2) configured kernel include paths + generated headers (autoconf.h); (3) **modpost** → .mod.c with vermagic, symbol CRCs, MODULE_* info → without it insmod rejects. **Top drill item.** |
+| 20 | Char device open path | ✅ Solid (R2) | major/minor → cdev → fops installed at open (chrdev_open swaps `struct file->f_op`), no re-lookup on read, missing .read → -1/EINVAL with no driver code run. |
 
 ### Overall pattern
 
-**Strength:** Conceptual/policy-level reasoning is genuinely good — consistently correct on *why* a design exists. Recovers gracefully when a fact is missing (reasons toward it instead of bluffing).
+**Strength:** conceptual reasoning is consistently good; self-corrects well under probing (R2 Q4).
 
-**Consistent gap (refined after Jul 17 mock):** Mechanism-level *facts* cluster around ONE seam — **where kernel structures physically live, and who (hardware vs software) performs each step.** Three symptoms: (a) COW granularity = page not bytes [#4]; (b) MMU-detects-vs-kernel-repairs [#12]; (c) fd/struct-file/inode scope + "they live in kernel memory" [#13]. Fixing the seam fixes all three. **These three are the declared focus for the ~Jul 31 mixed R2 interview.**
+**R2 shows real progress:** 5 items that had been open since July/July-drill graduated (#4, #12, #15, #16, plus #13 scope). The "where things live / who does what" seam is largely fixed.
 
-**Retention strategy (confirmed working):** user traces real kernel source, questions examples that don't match expectations, derives conclusions independently. Requested strict one-topic-at-a-time pacing — **honor this: never batch multiple sub-mechanisms in one message.**
+**What remains is precise facts, not concepts:** `struct file` vs `files_struct` naming; shared-f_pos → append; kernel negative-errno return; HOSTCC vs CROSS_COMPILE; the three reasons Kbuild is required. Pattern: items learned as **background friction** (W3 build errors) consolidate poorly — drill them as explicit topics.
 
 ---
 
 ## The Plan
 
-**Format per topic:** concept from first principles → user/kernel/hardware/Device-Tree role breakdown (where relevant) → code example → small hands-on task → interview Q&A + common pitfalls.
+**Format per topic:** concept from first principles → user/kernel/hardware/DT role breakdown → code example → hands-on → interview Q&A + pitfalls.
 
-### Phase 1 — User Space Foundations (Weeks 1-2)
+### Phase 1 — User Space Foundations
+**Week 1 — Process, Syscall & Memory** ✅ COMPLETE (2026-07-10) — `Week1_Review.md`
+**Week 2 — Multithreading & IPC** ✅ COMPLETE (2026-07-17) — `Week2_Review.md`
 
-**Week 1 — Process, Syscall & Memory Mechanics** ✅ **COMPLETE (2026-07-10)** — review doc: `Week1_Review.md`
-- ✅ Context switch, syscall + privilege rings, fd 3-layer model + lifecycle, virtual memory, fork/COW, page-fault preview
+### Phase 2 — Kernel Fundamentals & First Driver
+**Week 3 — Kernel Modules & Build System** ✅ COMPLETE (2026-09-20) — `Week3_Review.md`, `FLASH.md`
+- Module concept, the two Matches, Kbuild, linking deep-dive, insmod/modprobe/rmmod
+- Hands-on: full BBB bring-up, kernel 6.18.52-bone54 built from bb-kernel source, hello.ko loaded on hardware
 
-**Week 2 — Multithreading & IPC** ✅ **COMPLETE (2026-07-17)** — review doc: `Week2_Review.md`
-- ✅ Instruction-level races, pthread/clone model, mutex/futex internals, condition variables, false sharing
-- ✅ IPC: pipes, shared memory, message queues, signals — all in depth
-- ✅ Sockets — TCP lifecycle, flow-control two-buffer model, byte order, deadlock+fix, UDP, AF_UNIX
+**Week 4 — Char Drivers** ← **IN PROGRESS**
+- ✅ Topic 1 (Sep 28): device types (char/block/net), device file = numbered signpost, major (driver) / minor (device instance within driver; driver=class, device=object), /proc/devices, `open()` → inode → `def_chr_fops` → `chrdev_open()` → cdev lookup → **swaps `struct file->f_op` to driver fops** → later reads dispatch with no re-lookup. mknod trick (routing by numbers, not name).
+- ✅ Topic 2 (Sep 29 – Oct 2): `alloc_chrdev_region` (dynamic, counts down from 254 → got 240), `cdev_init`/`cdev_add` (goes live; call last; `.owner = THIS_MODULE` → module refcount while open), `class_create(name)` (6.4+ API) / `device_create` → sysfs + uevent → devtmpfs/udev create `/dev` node; `goto` reverse unwind; `IS_ERR`/`PTR_ERR`; what each call creates (kernel objects, not files; /proc and /sys are generated views). sysfs purpose (/dev = data path, /sys = control/metadata path; uevent → node; discovery; attributes; topology). **Hands-on on BBB:** hellochar loaded (major 240 minor 0), /dev/hellochar auto-created 0600 root, `cat` → EINVAL with no driver print, clean unload. LED via sysfs (`trigger`, `brightness`; store() callback can return EINVAL; brightness 0 clears trigger).
+  - Fix-ups still to do in hellochar: rename to `hellochar.c` / `obj-m += hellochar.o` (module name was still `hello`); move `\n` to end of printk format (stray `)` lines).
+- ⬜ **Topic 3 (NEXT):** `file_operations` read/write, `copy_to_user`/`copy_from_user`, `f_pos`, `private_data`, return conventions
+- ⬜ Topic 4: full driver end-to-end + user-space test program
+- ⬜ Topic 5: locking inside the driver, robust error paths
 
-### Phase 2 — Kernel Fundamentals & First Driver (Weeks 3-4)
+### Phase 3 — Platform Drivers & Hardware Interaction
+**Week 5 — Platform Driver Model & Device Tree** (bb-kernel source tree on host for DT exploration)
+**Week 6 — Interrupts & Kernel Synchronization** (build on W1 RCU preview + W2 spinlock trade-off)
 
-**Week 3 — Kernel Modules & Build System** ✅ **COMPLETE (2026-09-20)** — runbook: `FLASH.md`
-- ✅ What a kernel module is (loadable ring-0 code; init/exit not main; registers-then-waits; printk not printf; no libc; __init/__exit memory reclaim; MODULE_LICENSE)
-- ✅ The two "Match" requirements: **Match #1** toolchain↔chip (ARM hardfloat, = CROSS_COMPILE); **Match #2** kernel tree↔running kernel (vermagic, = KDIR)
-- ✅ Kbuild / build system: obj-m, KDIR handoff (-C KDIR M=PWD modules), the ifneq(KERNELRELEASE) two-pass Makefile pattern, cross-compile vars
-- ✅ Linking deep-dive: symbols, symbol tables (/proc/kallsyms), unresolved references, insmod as dynamic linker patching against kernel symbol table; two-stage linking (existence check vs address patching), why deferred to load time; sysroot concept for cross-compiling user programs
-- ✅ How loading works: insmod (raw, by file, no dep resolution) vs modprobe (by name, resolves deps) vs rmmod (refcount-gated); lsmod/dmesg/modinfo/proc/modules
-- ✅ **HANDS-ON (major): full BBB environment bring-up from scratch** — flashed official Debian 13 / kernel 6.18.52-bone54 SD image; S2 boot override; serial (minicom 115200) + SSH (ssh bbb alias, key auth); cross-compiled the ENTIRE 6.18.52-bone54 kernel from bb-kernel source (Robert Nelson scripts, auto-provisioned GCC 15 toolchain); built + deployed + **loaded first cross-compiled module (hello.ko) on real hardware** — verified insmod→hello_init, lsmod, rmmod→hello_exit via dmesg. All Matches verified via modinfo (vermagic 6.18.52-bone54) + file (ARM 32-bit).
-- Notes/gotchas captured in FLASH.md: linux-headers .deb is a stripped tree (missing scripts/kconfig, ships ARM host-tools → "fixdep: Exec format error" on x86) — use bb-kernel SOURCE build instead; never Ctrl-C toolchain download (corrupts file); ethernet DHCP wants cable plugged AFTER boot; module vermagic must == board uname -r.
+### Phase 4 — Memory, Debugging & Observability
+**Week 7 — Memory Mapping & DMA** (full page-fault depth)
+**Week 8 — Observability & Debugging** (sysfs show/store attributes — previewed with LEDs in W4)
 
-**Week 4 — Char Drivers** ← **NEXT**
-- `file_operations`, major/minor numbers
-- Write a real char driver end-to-end (loopback or fake sensor device), test from user space
-- Environment is READY (board booted, cross-compile + module load loop proven working 2026-09-20). scull skeleton already present in kmod/scull.
+### Phase 5 — Boot & Build Systems
+**Week 9 — Boot Chain & Yocto** (S2 boot, MLO/U-Boot, kernel build already previewed in W3)
 
-### Phase 3 — Platform Drivers & Hardware Interaction (Weeks 5-6)
-
-**Week 5 — Platform Driver Model & Device Tree**
-- Platform driver model, Device Tree bindings, how DT connects to driver `probe()`
-- (bb-kernel full source tree now on host — useful for DT exploration)
-
-**Week 6 — Interrupts & Kernel Synchronization**
-- Top half/bottom half, tasklets, workqueues, threaded IRQs
-- Spinlocks vs mutexes vs RCU — why you can't sleep in a spinlock
-- (RCU intro given W1 via `__rcu` fd array; user-space spinlock trade-off given W2 — build on both)
-
-### Phase 4 — Memory, Debugging & Observability (Weeks 7-8)
-
-**Week 7 — Memory Mapping & DMA**
-- `mmap`, `ioremap`, `kmalloc` vs `vmalloc`
-- Full page fault mechanism (deferred from Week 1; also fixes diagnostic #12 MMU-vs-kernel roles)
-- DMA basics: coherent vs streaming, DMA-safe memory
-
-**Week 8 — Observability & Debugging**
-- sysfs/procfs/debugfs — exposing driver state to user space
-- Kernel debugging toolkit: printk/dynamic debug, ftrace, kgdb/kdb, oops/panic analysis
-- (Field-diagnosis triad seeded in W2: ps state / /proc/<pid>/wchan / /proc/<pid>/fd)
-
-### Phase 5 — Boot Process & Build Systems (Week 9)
-
-**Week 9 — Boot Chain & Yocto**
-- Full boot chain: ROM → SPL → bootloader → kernel → rootfs (PARTIALLY PREVIEWED in W3 hands-on: S2 boot override, MLO/u-boot, kernel build)
-- U-Boot internals and commands
-- Secure Boot chain of trust basics
-- Yocto Project fundamentals: layers, recipes, bitbake
-- (Note: user has bb-kernel + rootfs + u-boot parts on disk for manual SD assembly — good raw material for the hands-on boot-chain lesson)
-
-### Phase 6 — CI/CD for Embedded (Weeks 10-11)
-
+### Phase 6 — CI/CD for Embedded
 **Week 10 — Git, Static Analysis, Unit Testing**
-- Git workflows for embedded teams; static analysis (cppcheck, clang-tidy); unit testing (Unity/GoogleTest, mocking hardware)
-
 **Week 11 — Build Pipelines & Integration Testing**
-- Cross-compilation in CI; CI/CD for Yocto-based projects; integration testing; HIL testing concepts
 
 ---
 
-## Open Items / Decisions Needed
+## Open Items
 
-- [x] **Target environment for Week 4 onward**: real hardware — **BeagleBone Black**. Decided 2026-06-21. **Environment fully working as of 2026-09-20** (flashed, booted, SSH, cross-compile + module load loop proven).
-- [ ] RTOS topics deliberately excluded per user request (has practical RTOS experience) — revisit later if needed
-- [x] Build tooling: user prefers **CMake** for user-space code; kernel modules use the bb-kernel-style Makefile.
-- [ ] Toolchain cleanup deferred: the manually-downloaded `toolchain/arm-gnu-toolchain-13.3.rel1-...` (unused now — bb-kernel uses its own GCC 15 in dl/) and the broken `kmod/headers/` .deb extraction can be deleted to reclaim space. Keep the .deb file. (Low priority; do when convenient.)
+- [x] Target environment: **BeagleBone Black**, fully working since 2026-09-20.
+- [ ] RTOS topics excluded per user request — revisit later if needed.
+- [x] Build tooling: CMake for user-space code; bb-kernel-style Makefile for modules.
+- [ ] Cleanup (low priority): delete unused `toolchain/arm-gnu-toolchain-13.3.rel1-...` and the broken `kmod/headers/` extraction (keep the .deb).
 
 ---
 
 ## Review Schedule (Spaced Retrieval Practice)
 
-**Purpose:** Combat forgetting via retrieval practice at expanding intervals. Mini-drill = 10-15 min, 4-6 quick questions. Mock interview = 20-30 min, full interviewer persona, no teaching until after.
-
-**Session-start protocol (for Claude):** At the start of EVERY session, check this table. If any review is due/overdue, inform the user before starting new material. User decides run-or-defer. After each review: mark done, log results, update diagnostic table.
-
-**Interval rule:** topic completed → mini-drill +2-3 days → mock interview +1 week → mixed interview +3 weeks → final comprehensive in Week 11.
+**Interval rule:** topic completed → mini-drill +2-3 days → mock +1 week → mixed mock +3 weeks → final comprehensive at end.
 
 | Due date | Type | Scope | Status |
 |---|---|---|---|
-| 2026-07-12 | Mini-drill | Week 1 | ✅ Done — 3/6 solid, 3/6 partial (MMU-vs-kernel, per-page COW, privilege gates) |
-| 2026-07-17 | Mock interview R1 | Week 1 | ✅ Done — pass w/ reservations. Graduated: privilege gates, context switch, syscall. Still ⚠️: #4, #12, #13. |
-| 2026-07-20 | Mini-drill | Week 2 | ✅ Done ~Jul 20 — 3 solid (D1 races, D5 shm offsets, D6 TCP connect), 1 label-slip (D1 "process" vs "thread"), 2 misses: **uncontended-mutex syscall count (answered "one", correct = ZERO)** and **condvar while-not-if (gap)**. Added to R2 focus. |
-| ~2026-08-10 | Mock interview R2 | Weeks 1-2-3 mixed | ⬜ Pending — **W1 carry-over: (1) fd/struct-file/inode scope [#13], (2) MMU-vs-kernel repairs [#12], (3) per-page COW [#4]. W2 carry-over: (4) uncontended mutex = 0 syscalls, (5) condvar while-not-if. Plus W3 module/build basics.** (Date pushed from ~Jul 31 due to the long W3 hands-on setup session.) |
-| Week 11 (end of plan) | Final comprehensive | Everything | ⬜ Pending |
-
-**Pending to schedule:** Week 3 mini-drill (module concepts, the two Matches, Kbuild, insmod/modprobe/rmmod) — ~2-3 days after next session, once W3 conceptual material has had time to settle (note: W3 was heavily hands-on; the conceptual bits were taught around a lot of setup friction and were re-anchored at session end).
+| 2026-07-12 | Mini-drill | Week 1 | ✅ Done — 3/6 solid |
+| 2026-07-17 | Mock R1 | Week 1 | ✅ Done — pass w/ reservations |
+| 2026-07-20 | Mini-drill | Week 2 | ✅ Done — misses: mutex 0 syscalls, condvar while |
+| 2026-09-27 | Mini-drill | Week 3 | ✅ Done — 2 solid (Matches, __init), D3 slip ("physical" addr), D1 errno ⚠️, D4 Kbuild ⚠️, D5 host-vs-target ❌ |
+| 2026-10-01 → ran 10-11 | Mock R2 | Weeks 1-3 mixed (+W4 T1) | ✅ Done Oct 11 — **pass at mid level.** Graduated #4, #12, #15, #16, #20, #13-scope. Open: #13 naming + f_pos, #17, #18, #19. |
+| **~2026-10-14** | **Targeted mini-drill** | **The 4 open items:** (1) `struct file` vs `files_struct` + shared-f_pos/O_APPEND, (2) kernel return convention + init unwind, (3) HOSTCC vs CROSS_COMPILE (fixdep), (4) three reasons Kbuild is required | ⬜ Pending |
+| after W4 complete (+2-3 d) | Mini-drill | Week 4 (char drivers) | ⬜ Pending |
+| ~3 weeks after R2 (~early Nov) | Mock R3 | Weeks 1-4 mixed | ⬜ Pending |
+| End of plan | Final comprehensive | Everything | ⬜ Pending |
 
 ---
 
 ## Progress Log
 
-- **2026-06-21**: Initial diagnostic completed, plan created. BeagleBone chosen for W4+. Update workflow confirmed.
-- **2026-07-10**: **Week 1 COMPLETE.** Added Review Schedule system.
-- **2026-07-12**: W1 mini-drill done (3/6 solid).
-- **2026-07-17**: W1 Mock R1 done (pass w/ reservations; #4/#12/#13 → R2 focus). Created `Week1_Review.md`.
-- **2026-07-17**: **Week 2 COMPLETE.** All IPC + sockets. Created `Week2_Review.md`. User derived write/write deadlock and self-corrected AF_UNIX misconception.
-- **2026-07-20**: W2 mini-drill done. Misses: uncontended-mutex syscall count (0, not 1) and condvar while-not-if → added to R2 focus.
-- **2026-09-20**: **Week 3 COMPLETE — major hands-on session.** Taught: what a module is (init/exit vs main, registers-then-waits, printk/no-libc, __init reclaim, MODULE_LICENSE), the two Match requirements (toolchain↔chip, kernel-tree↔running-kernel), Kbuild handoff + ifneq(KERNELRELEASE) Makefile, deep linking dive (symbols/symbol-table/unresolved-refs, insmod as dynamic linker, two-stage linking + sysroot), and load mechanics (insmod vs modprobe vs rmmod, lsmod/dmesg/modinfo). **Full BBB bring-up from scratch** (old SD card had corrupted): flashed official Debian 13 kernel-6.18.52-bone54 image → S2 boot → serial+SSH (ssh bbb, key auth) → **cross-compiled the entire 6.18.52-bone54 kernel from bb-kernel source** (after the linux-headers .deb path failed with fixdep Exec-format-error; the source build self-provisions GCC 15 and builds x86 host tools correctly) → **built, deployed, and LOADED first module hello.ko on real hardware** (insmod→hello_init, lsmod refcount 0, rmmod→hello_exit, all seen in dmesg; Matches verified via modinfo vermagic + file ARM). Created **`FLASH.md`** runbook capturing the whole procedure so an SD corruption never costs a session again. Session was long and setup-heavy; conceptual material was re-anchored near the end (user flagged losing track — re-taught module basics + confirmed via 2 checks). **Next: Week 4 — Char Drivers** (environment now proven; kmod/scull skeleton present). Also pending: W3 mini-drill, and the ~Aug 10 mixed R2 interview.
+- **2026-06-21**: Initial diagnostic, plan created. BeagleBone chosen.
+- **2026-07-10**: Week 1 COMPLETE. Review Schedule system added.
+- **2026-07-12**: W1 mini-drill (3/6 solid).
+- **2026-07-17**: W1 Mock R1 (pass w/ reservations). `Week1_Review.md` created. Week 2 COMPLETE; `Week2_Review.md` created.
+- **2026-07-20**: W2 mini-drill (misses: mutex syscall count, condvar while).
+- **2026-09-20**: **Week 3 COMPLETE** — module concepts + full BBB bring-up, kernel built from bb-kernel source, hello.ko loaded on hardware. `FLASH.md` created.
+- **2026-09-27**: W3 mini-drill (gaps: errno convention, Kbuild "why", host-vs-target tools, "physical" address slip). `Week3_Review.md` created. Agreed **"Start" keyword** session convention. **Week 4 started.**
+- **2026-09-28**: W4 Topic 1 — char device model, major/minor, driver vs device, chrdev_open f_op swap.
+- **2026-09-29 → 10-02**: W4 Topic 2 — registration (alloc_chrdev_region, cdev, class/device, uevent → /dev), goto unwind, sysfs purpose; hellochar loaded on BBB; LED driven via sysfs.
+- **2026-10-11**: **Mock R2 done** (after 9-day gap; was set for Oct 1). Pass at mid level; 5 long-standing gaps graduated. Remaining: struct file vs files_struct naming + shared-f_pos→append, kernel negative-errno return, HOSTCC vs CROSS_COMPILE, three reasons for Kbuild (3rd miss).
+- **2026-10-13**: Tracker updated. **Next:** targeted 4-item mini-drill (~Oct 14), then W4 Topic 3 (read/write, copy_to_user). Also fix hellochar module name + printk `\n`.
